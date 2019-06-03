@@ -98,6 +98,7 @@ jobs:
   dependsOn: macOS-build
   timeoutInMinutes: 180
 
+  steps:
   - task: DownloadPipelineArtifact@0
     inputs:
       artifactName: 'macOS-build'
