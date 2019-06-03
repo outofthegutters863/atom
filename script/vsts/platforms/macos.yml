@@ -99,6 +99,13 @@ jobs:
   displayName: macOS (Tests)
   dependsOn: macOS_build
   timeoutInMinutes: 180
+  strategy:
+    maxParallel: 2
+    matrix:
+      coreTests:
+        ATOM_RUN_CORE_TESTS: true
+      packageTests:
+        ATOM_RUN_PACKAGE_TESTS: true
 
   steps:
   - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
