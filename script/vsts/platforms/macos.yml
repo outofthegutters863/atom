@@ -93,7 +93,7 @@ jobs:
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'macOS_build'
-      targetPath: $(System.SourcesDirectory)/out
+      targetPath: $(Build.SourcesDirectory)/out
 
 - job: macOS_tests
   displayName: macOS (Tests)
@@ -118,7 +118,7 @@ jobs:
   - task: DownloadPipelineArtifact@0
     inputs:
       artifactName: 'macOS_build'
-      targetPath: $(System.SourcesDirectory)/out
+      targetPath: $(Build.SourcesDirectory)/out
 
   - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
