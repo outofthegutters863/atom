@@ -1,5 +1,5 @@
 jobs:
-- job: macOS
+- job: macOS-build
   dependsOn: GetReleaseVersion
   timeoutInMinutes: 180
 
@@ -62,6 +62,53 @@ jobs:
       ATOM_MAC_CODE_SIGNING_KEYCHAIN_PASSWORD: $(ATOM_MAC_CODE_SIGNING_KEYCHAIN_PASSWORD)
 
   - script: |
+      cp $(Build.SourcesDirectory)/out/*.zip $(Build.ArtifactStagingDirectory)
+    displayName: Stage Artifacts
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)/atom-mac.zip
+      ArtifactName: atom-mac.zip
+      ArtifactType: Container
+    displayName: Upload atom-mac.zip
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)/atom-mac-symbols.zip
+      ArtifactName: atom-mac-symbols.zip
+      ArtifactType: Container
+    displayName: Upload atom-mac-symbols.zip
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: $(Build.SourcesDirectory)/docs/output/atom-api.json
+      ArtifactName: atom-api.json
+      ArtifactType: Container
+    displayName: Upload atom-api.json
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'macOS-build'
+      targetPath: $(System.DefaultWorkingDirectory)
+
+- job: macOS-tests
+  dependsOn: macOS-build
+  timeoutInMinutes: 180
+  strategy:
+    maxParallel: 2
+    matrix:
+      ATOM_RUN_CORE_TESTS: 'true'
+      ATOM_RUN_PACKAGE_TESTS: 'true'
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'macOS-build'
+      targetPath: $(System.DefaultWorkingDirectory)
+
+  - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
       caffeinate -s script/test # Run with caffeinate to prevent screen saver
     env:
@@ -88,38 +135,10 @@ jobs:
     condition: ne(variables['Atom.SkipTests'], 'true')
 
   - script: |
-      cp $(Build.SourcesDirectory)/out/*.zip $(Build.ArtifactStagingDirectory)
-    displayName: Stage Artifacts
-
-  - script: |
       mkdir -p $(Build.ArtifactStagingDirectory)/crash-reports
       cp ${HOME}/Library/Logs/DiagnosticReports/*.crash $(Build.ArtifactStagingDirectory)/crash-reports
     displayName: Stage Crash Reports
     condition: failed()
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)/atom-mac.zip
-      ArtifactName: atom-mac.zip
-      ArtifactType: Container
-    displayName: Upload atom-mac.zip
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)/atom-mac-symbols.zip
-      ArtifactName: atom-mac-symbols.zip
-      ArtifactType: Container
-    displayName: Upload atom-mac-symbols.zip
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: $(Build.SourcesDirectory)/docs/output/atom-api.json
-      ArtifactName: atom-api.json
-      ArtifactType: Container
-    displayName: Upload atom-api.json
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
   - task: PublishBuildArtifacts@1
     inputs:
