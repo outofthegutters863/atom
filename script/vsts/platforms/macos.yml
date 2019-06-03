@@ -92,46 +92,49 @@ jobs:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'macOS_build'
-      targetPath: $(Build.SourcesDirectory)/out
+      artifactName: 'macOS_build_app'
+      targetPath: $(Build.SourcesDirectory)/out/atom-mac.zip
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'macOS_node_modules'
-      targetPath: $(Build.SourcesDirectory)/node_modules
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'macOS_script_node_modules'
-      targetPath: $(Build.SourcesDirectory)/script/node_modules
+      artifactName: 'macOS_build_symbols'
+      targetPath: $(Build.SourcesDirectory)/out/symbols
 
 - job: macOS_tests
   displayName: macOS Tests
   dependsOn: macOS_build
   timeoutInMinutes: 180
+  pool:
+    vmImage: macos-10.13
   strategy:
     maxParallel: 2
     matrix:
       coreTests:
         ATOM_RUN_CORE_TESTS: true
+        displayName: macOS Core Tests
       packageTests:
         ATOM_RUN_PACKAGE_TESTS: true
+        displayName: macOS Package Tests
 
   steps:
-  - task: DownloadPipelineArtifact@0
+  - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
+    displayName: Restore node_modules cache
     inputs:
-      artifactName: 'macOS_build'
-      targetPath: $(Build.SourcesDirectory)/out
+      keyfile: 'package.json, **/package-lock.json, !**/node_modules/**/package-lock.json, !**/.*/**/package-lock.json'
+      targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
+      vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'macOS_node_modules'
-      targetPath: $(Build.SourcesDirectory)/node_modules
+      artifactName: 'macOS_build_app'
+      targetPath: $(Build.SourcesDirectory)/out/atom-mac.zip
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'macOS_script_node_modules'
-      targetPath: $(Build.SourcesDirectory)/script/node_modules
+      artifactName: 'macOS_build_symbols'
+      targetPath: $(Build.SourcesDirectory)/out/symbols
+
+  - script: unzip out/atom-mac.zip -d out
 
   - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
