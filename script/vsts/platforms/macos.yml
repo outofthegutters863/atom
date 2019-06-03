@@ -101,10 +101,8 @@ jobs:
     matrix:
       coreTests:
         ATOM_RUN_CORE_TESTS: true
-        displayName: macOS Core Tests
       packageTests:
         ATOM_RUN_PACKAGE_TESTS: true
-        displayName: macOS Package Tests
 
   steps:
   - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
@@ -119,7 +117,7 @@ jobs:
       artifactName: 'atom-mac.zip'
       downloadPath: $(Build.SourcesDirectory)/out/atom-mac.zip
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadBuildArtifacts@0
     inputs:
       artifactName: 'atom-mac-symbols.zip'
       downloadPath: $(Build.SourcesDirectory)/out/atom-mac-symbols.zip'
