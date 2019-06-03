@@ -100,9 +100,11 @@ jobs:
     maxParallel: 2
     matrix:
       core:
-        ATOM_RUN_CORE_TESTS: true
+        RunCoreTests: true
+        RunPackageTests: false
       packages:
-        ATOM_RUN_PACKAGE_TESTS: true
+        RunCoreTests: false
+        RunPackageTests: true
 
   steps:
   - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
@@ -122,8 +124,8 @@ jobs:
       artifactName: 'atom-mac-symbols.zip'
       downloadPath: $(Build.SourcesDirectory)/out/atom-mac-symbols.zip'
 
-  - script: unzip out/atom-mac.zip -d out
-  - script: unzip out/atom-mac-symbols.zip -d out
+  - script: unzip $(Build.SourcesDirectory)/out/atom-mac.zip -d $(Build.SourcesDirectory)/out
+  - script: unzip $(Build.SourcesDirectory)/out/atom-mac-symbols.zip -d $(Build.SourcesDirectory)/out
   - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
       caffeinate -s script/test # Run with caffeinate to prevent screen saver
@@ -132,6 +134,8 @@ jobs:
       CI_PROVIDER: VSTS
       ATOM_JASMINE_REPORTER: list
       TEST_JUNIT_XML_ROOT: $(Common.TestResultsDirectory)/junit
+      ATOM_RUN_CORE_TESTS: $(RunCoreTests)
+      ATOM_RUN_PACKAGE_TESTS: $(RunPackageTests)
     displayName: Run tests
     condition: and(succeeded(), ne(variables['Atom.SkipTests'], 'true'))
 
