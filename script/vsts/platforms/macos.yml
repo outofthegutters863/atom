@@ -1,6 +1,6 @@
 jobs:
 - job: macOS_build
-  displayName: macOS Build
+  displayName: macOS build
   dependsOn: GetReleaseVersion
   timeoutInMinutes: 180
 
@@ -91,7 +91,7 @@ jobs:
     condition: succeeded()
 
 - job: macOS_tests
-  displayName: macOS Tests
+  displayName: macOS test
   dependsOn: macOS_build
   timeoutInMinutes: 180
   pool:
@@ -99,9 +99,9 @@ jobs:
   strategy:
     maxParallel: 2
     matrix:
-      coreTests:
+      core:
         ATOM_RUN_CORE_TESTS: true
-      packageTests:
+      package:
         ATOM_RUN_PACKAGE_TESTS: true
 
   steps:
