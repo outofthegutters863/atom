@@ -100,8 +100,8 @@ jobs:
   strategy:
     maxParallel: 2
     matrix:
-      ATOM_RUN_CORE_TESTS: 'true'
-      ATOM_RUN_PACKAGE_TESTS: 'true'
+      ATOM_RUN_CORE_TESTS: true
+      ATOM_RUN_PACKAGE_TESTS: true
 
   - task: DownloadPipelineArtifact@0
     inputs:
