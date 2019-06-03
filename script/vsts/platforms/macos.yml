@@ -93,7 +93,7 @@ jobs:
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'macOS_build'
-      targetPath: $(System.DefaultWorkingDirectory)
+      targetPath: $(System.SourcesDirectory)/out
 
 - job: macOS_tests
   displayName: macOS (Tests)
@@ -101,10 +101,17 @@ jobs:
   timeoutInMinutes: 180
 
   steps:
+  - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
+    displayName: Restore node_modules cache
+    inputs:
+      keyfile: 'package.json, **/package-lock.json, !**/node_modules/**/package-lock.json, !**/.*/**/package-lock.json'
+      targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
+      vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
+
   - task: DownloadPipelineArtifact@0
     inputs:
       artifactName: 'macOS_build'
-      targetPath: $(System.DefaultWorkingDirectory)
+      targetPath: $(System.SourcesDirectory)/out
 
   - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
