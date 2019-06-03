@@ -1,5 +1,6 @@
 jobs:
 - job: macOS_build
+  displayName: macOS (Build)
   dependsOn: GetReleaseVersion
   timeoutInMinutes: 180
 
@@ -95,6 +96,7 @@ jobs:
       targetPath: $(System.DefaultWorkingDirectory)
 
 - job: macOS_tests
+  displayName: macOS (Tests)
   dependsOn: macOS_build
   timeoutInMinutes: 180
 
