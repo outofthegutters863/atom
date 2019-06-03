@@ -1,5 +1,5 @@
 jobs:
-- job: macOS-build
+- job: macOS_build
   dependsOn: GetReleaseVersion
   timeoutInMinutes: 180
 
@@ -91,17 +91,17 @@ jobs:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'macOS-build'
+      artifactName: 'macOS_build'
       targetPath: $(System.DefaultWorkingDirectory)
 
-- job: macOS-tests
-  dependsOn: macOS-build
+- job: macOS_tests
+  dependsOn: macOS_build
   timeoutInMinutes: 180
 
   steps:
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'macOS-build'
+      artifactName: 'macOS_build'
       targetPath: $(System.DefaultWorkingDirectory)
 
   - script: |
