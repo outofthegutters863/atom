@@ -12,59 +12,62 @@ jobs:
     vmImage: macos-10.13
 
   steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: 8.9.3
-    displayName: Install Node.js 8.9.3
+  # - task: NodeTool@0
+  #   inputs:
+  #     versionSpec: 8.9.3
+  #   displayName: Install Node.js 8.9.3
+  #
+  # - script: npm install --global npm@6.2.0
+  #   displayName: Update npm
+  #
+  # - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
+  #   displayName: Restore node_modules cache
+  #   inputs:
+  #     keyfile: 'package.json, **/package-lock.json, !**/node_modules/**/package-lock.json, !**/.*/**/package-lock.json'
+  #     targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
+  #     vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
+  #
+  # - script: script/bootstrap
+  #   displayName: Bootstrap build environment
+  #   env:
+  #     CI: true
+  #     CI_PROVIDER: VSTS
+  #     NPM_BIN_PATH: /usr/local/bin/npm
+  #   condition: ne(variables['CacheRestored'], 'true')
+  #
+  # - task: 1ESLighthouseEng.PipelineArtifactCaching.SaveCacheV1.SaveCache@1
+  #   displayName: Save node_modules cache
+  #   inputs:
+  #     keyfile: 'package.json, **/package-lock.json, !**/node_modules/**/package-lock.json, !**/.*/**/package-lock.json'
+  #     targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
+  #     vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
+  #
+  # - script: script/lint
+  #   displayName: Run linter
+  #
+  # - script: |
+  #     if [ $IS_RELEASE_BRANCH == "true" ] || [ $IS_SIGNED_ZIP_BRANCH == "true" ]; then
+  #       script/build --no-bootstrap --code-sign --compress-artifacts
+  #     else
+  #       script/build --no-bootstrap --compress-artifacts
+  #     fi
+  #   displayName: Build Atom
+  #   env:
+  #     GITHUB_TOKEN: $(GITHUB_TOKEN)
+  #     IS_RELEASE_BRANCH: $(IsReleaseBranch)
+  #     IS_SIGNED_ZIP_BRANCH: $(IsSignedZipBranch)
+  #     ATOM_RELEASE_VERSION: $(ReleaseVersion)
+  #     ATOM_MAC_CODE_SIGNING_CERT_DOWNLOAD_URL: $(ATOM_MAC_CODE_SIGNING_CERT_DOWNLOAD_URL)
+  #     ATOM_MAC_CODE_SIGNING_CERT_PASSWORD: $(ATOM_MAC_CODE_SIGNING_CERT_PASSWORD)
+  #     ATOM_MAC_CODE_SIGNING_KEYCHAIN: $(ATOM_MAC_CODE_SIGNING_KEYCHAIN)
+  #     ATOM_MAC_CODE_SIGNING_KEYCHAIN_PASSWORD: $(ATOM_MAC_CODE_SIGNING_KEYCHAIN_PASSWORD)
+  #
+  # - script: |
+  #     cp $(Build.SourcesDirectory)/out/*.zip $(Build.ArtifactStagingDirectory)
+  #   displayName: Stage Artifacts
 
-  - script: npm install --global npm@6.2.0
-    displayName: Update npm
-
-  - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
-    displayName: Restore node_modules cache
-    inputs:
-      keyfile: 'package.json, **/package-lock.json, !**/node_modules/**/package-lock.json, !**/.*/**/package-lock.json'
-      targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
-      vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
-
-  - script: script/bootstrap
-    displayName: Bootstrap build environment
-    env:
-      CI: true
-      CI_PROVIDER: VSTS
-      NPM_BIN_PATH: /usr/local/bin/npm
-    condition: ne(variables['CacheRestored'], 'true')
-
-  - task: 1ESLighthouseEng.PipelineArtifactCaching.SaveCacheV1.SaveCache@1
-    displayName: Save node_modules cache
-    inputs:
-      keyfile: 'package.json, **/package-lock.json, !**/node_modules/**/package-lock.json, !**/.*/**/package-lock.json'
-      targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
-      vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
-
-  - script: script/lint
-    displayName: Run linter
-
-  - script: |
-      if [ $IS_RELEASE_BRANCH == "true" ] || [ $IS_SIGNED_ZIP_BRANCH == "true" ]; then
-        script/build --no-bootstrap --code-sign --compress-artifacts
-      else
-        script/build --no-bootstrap --compress-artifacts
-      fi
-    displayName: Build Atom
-    env:
-      GITHUB_TOKEN: $(GITHUB_TOKEN)
-      IS_RELEASE_BRANCH: $(IsReleaseBranch)
-      IS_SIGNED_ZIP_BRANCH: $(IsSignedZipBranch)
-      ATOM_RELEASE_VERSION: $(ReleaseVersion)
-      ATOM_MAC_CODE_SIGNING_CERT_DOWNLOAD_URL: $(ATOM_MAC_CODE_SIGNING_CERT_DOWNLOAD_URL)
-      ATOM_MAC_CODE_SIGNING_CERT_PASSWORD: $(ATOM_MAC_CODE_SIGNING_CERT_PASSWORD)
-      ATOM_MAC_CODE_SIGNING_KEYCHAIN: $(ATOM_MAC_CODE_SIGNING_KEYCHAIN)
-      ATOM_MAC_CODE_SIGNING_KEYCHAIN_PASSWORD: $(ATOM_MAC_CODE_SIGNING_KEYCHAIN_PASSWORD)
-
-  - script: |
-      cp $(Build.SourcesDirectory)/out/*.zip $(Build.ArtifactStagingDirectory)
-    displayName: Stage Artifacts
+  - script: touch $(Build.ArtifactStagingDirectory)/atom-mac.zip
+  - script: touch $(Build.ArtifactStagingDirectory)/atom-mac-symbols.zip
 
   - task: PublishBuildArtifacts@1
     inputs:
@@ -82,13 +85,13 @@ jobs:
     displayName: Upload atom-mac-symbols.zip
     condition: succeeded()
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: $(Build.SourcesDirectory)/docs/output/atom-api.json
-      ArtifactName: atom-api.json
-      ArtifactType: Container
-    displayName: Upload atom-api.json
-    condition: succeeded()
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     PathtoPublish: $(Build.SourcesDirectory)/docs/output/atom-api.json
+  #     ArtifactName: atom-api.json
+  #     ArtifactType: Container
+  #   displayName: Upload atom-api.json
+  #   condition: succeeded()
 
 - job: macOS_tests
   displayName: macOS test
@@ -117,15 +120,16 @@ jobs:
   - task: DownloadBuildArtifacts@0
     inputs:
       artifactName: 'atom-mac.zip'
-      downloadPath: $(Build.SourcesDirectory)/out/atom-mac.zip
+      downloadPath: $(Build.SourcesDirectory)/out
 
   - task: DownloadBuildArtifacts@0
     inputs:
       artifactName: 'atom-mac-symbols.zip'
-      downloadPath: $(Build.SourcesDirectory)/out/atom-mac-symbols.zip'
+      downloadPath: $(Build.SourcesDirectory)/out
 
-  - script: unzip $(Build.SourcesDirectory)/out/atom-mac.zip -d $(Build.SourcesDirectory)/out
-  - script: unzip $(Build.SourcesDirectory)/out/atom-mac-symbols.zip -d $(Build.SourcesDirectory)/out
+  - script: find out
+  - script: unzip out/atom-mac.zip -d out
+  - script: unzip out/atom-mac-symbols.zip -d out
   - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
       caffeinate -s script/test # Run with caffeinate to prevent screen saver
