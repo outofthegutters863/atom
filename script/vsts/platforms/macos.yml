@@ -72,7 +72,7 @@ jobs:
       ArtifactName: atom-mac.zip
       ArtifactType: Container
     displayName: Upload atom-mac.zip
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    condition: succeeded()
 
   - task: PublishBuildArtifacts@1
     inputs:
@@ -80,7 +80,7 @@ jobs:
       ArtifactName: atom-mac-symbols.zip
       ArtifactType: Container
     displayName: Upload atom-mac-symbols.zip
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    condition: succeeded()
 
   - task: PublishBuildArtifacts@1
     inputs:
@@ -88,17 +88,7 @@ jobs:
       ArtifactName: atom-api.json
       ArtifactType: Container
     displayName: Upload atom-api.json
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'macOS_build_app'
-      targetPath: $(Build.SourcesDirectory)/out/atom-mac.zip
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'macOS_build_symbols'
-      targetPath: $(Build.SourcesDirectory)/out/symbols
+    condition: succeeded()
 
 - job: macOS_tests
   displayName: macOS Tests
@@ -124,18 +114,18 @@ jobs:
       targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
       vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
 
-  - task: DownloadPipelineArtifact@0
+  - task: DownloadBuildArtifacts@0
     inputs:
-      artifactName: 'macOS_build_app'
-      targetPath: $(Build.SourcesDirectory)/out/atom-mac.zip
+      artifactName: 'atom-mac.zip'
+      downloadPath: $(Build.SourcesDirectory)/out/atom-mac.zip
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'macOS_build_symbols'
-      targetPath: $(Build.SourcesDirectory)/out/symbols
+      artifactName: 'atom-mac-symbols.zip'
+      downloadPath: $(Build.SourcesDirectory)/out/atom-mac-symbols.zip'
 
   - script: unzip out/atom-mac.zip -d out
-
+  - script: unzip out/atom-mac-symbols.zip -d out
   - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
       caffeinate -s script/test # Run with caffeinate to prevent screen saver
