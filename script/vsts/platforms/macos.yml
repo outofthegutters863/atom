@@ -95,6 +95,16 @@ jobs:
       artifactName: 'macOS_build'
       targetPath: $(Build.SourcesDirectory)/out
 
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'macOS_node_modules'
+      targetPath: $(Build.SourcesDirectory)/node_modules
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'macOS_script_node_modules'
+      targetPath: $(Build.SourcesDirectory)/script/node_modules
+
 - job: macOS_tests
   displayName: macOS Tests
   dependsOn: macOS_build
@@ -108,17 +118,20 @@ jobs:
         ATOM_RUN_PACKAGE_TESTS: true
 
   steps:
-  - task: 1ESLighthouseEng.PipelineArtifactCaching.RestoreCacheV1.RestoreCache@1
-    displayName: Restore node_modules cache
-    inputs:
-      keyfile: 'package.json, **/package-lock.json, !**/node_modules/**/package-lock.json, !**/.*/**/package-lock.json'
-      targetfolder: '**/node_modules, !**/node_modules/**/node_modules'
-      vstsFeed: 'bae1bc26-220d-43c7-a955-4de039370de2'
-
   - task: DownloadPipelineArtifact@0
     inputs:
       artifactName: 'macOS_build'
       targetPath: $(Build.SourcesDirectory)/out
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'macOS_node_modules'
+      targetPath: $(Build.SourcesDirectory)/node_modules
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'macOS_script_node_modules'
+      targetPath: $(Build.SourcesDirectory)/script/node_modules
 
   - script: |
       osascript -e 'tell application "System Events" to keystroke "x"' # clear screen saver
