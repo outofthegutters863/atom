@@ -101,7 +101,7 @@ jobs:
     matrix:
       core:
         ATOM_RUN_CORE_TESTS: true
-      package:
+      packages:
         ATOM_RUN_PACKAGE_TESTS: true
 
   steps:
